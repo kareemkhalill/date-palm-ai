@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Date Palm AI – Detection Demo</title>
+  <meta name="description" content="Intelligent date palm detection and counting from aerial imagery. Demo with pre-computed model results.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f5d3f'/%3E%3Cpath d='M16 26V14M16 14c-1-4-4-6-8-6 1 4 4 6 8 6zm0 0c1-4 4-6 8-6-1 4-4 6-8 6zm0 3c-1-3-3-4-6-4 1 3 3 4 6 4zm0 0c1-3 3-4 6-4-1 3-3 4-6 4z' stroke='%23fff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .samples { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; margin-top:24px; }
+    .sample { text-align:left; padding:10px; cursor:pointer; font:inherit; color:inherit; border:1px solid #e4e1d7; background:#fff; border-radius:14px; }
+    .sample:hover { border-color:var(--accent); }
+    .sample img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px; display:block; }
+    .sample b { display:block; margin-top:10px; }
+    .sample span { font-size:.85rem; color:var(--ink-2); }
+    .demo-note { margin-top:22px; padding:14px 18px; border-radius:12px; background:#e8f0ea; font-size:.92rem; }
+    .compare.single { grid-template-columns:minmax(0,1fr); }
+    .pane-img.tall img { max-height:80vh; object-fit:contain; margin:0 auto; width:auto; max-width:100%; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 27V14M16 14c-1-4-4-6-9-6 1 4 4 6 9 6zm0 0c1-4 4-6 9-6-1 4-4 6-9 6zm0 3.5c-1-3-3-4.500-6.500-4.500 1 3 3 4.500 6.500 4.500zm0 0c1-3 3-4.500 6.500-4.500-1 3-3 4.500-6.500 4.500z"/></svg>
+        </span>
+        <div>
+          <h1 class="brand-name">Date Palm AI</h1>
+          <p class="brand-sub">Intelligent Date Palm Detection &amp; Counting</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="../">Overview</a>
+        <a class="active" href="./">Detection demo</a>
+        <a href="https://github.com/kareemkhalill/date-palm-ai">GitHub</a>
+      </nav>
+      <div class="topbar-right">
+        <div class="status" data-state="ready" role="status"><span class="status-dot"></span><span>YOLO26-L · demo results</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="view-pick" class="view">
+      <div class="hero">
+        <h2>Count Date Palms with AI</h2>
+        <p>Choose an aerial scene to see the palms the model detected and counted.</p>
+      </div>
+      <div class="samples" id="samples"></div>
+      <p class="demo-note">This hosted page shows real, pre-computed model output; it does not run the model in your browser. Uploading your own images and the farm map need the Python backend, which you can run locally from the <a href="https://github.com/kareemkhalill/date-palm-ai">repository</a>.</p>
+    </section>
+
+    <section id="view-results" class="view" hidden>
+      <div class="card count-card">
+        <p class="eyebrow">Date palms detected</p>
+        <p class="count" id="res-count">0</p>
+        <p class="count-caption">Individual date palms detected in this image</p>
+        <div class="count-file">
+          <span class="eyebrow">Scene</span>
+          <span class="file-name" id="res-scene"></span>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="card stat"><p class="eyebrow">Palms detected</p><p class="stat-value" id="stat-count">0</p></div>
+        <div class="card stat"><p class="eyebrow">Image size</p><p class="stat-value" id="stat-size">-</p></div>
+        <div class="card stat"><p class="eyebrow">Model</p><p class="stat-value">YOLO26-L</p></div>
+      </div>
+      <div class="compare single">
+        <figure class="card pane">
+          <figcaption><span class="eyebrow">AI Detection</span><span class="pane-note" id="note-annotated"></span></figcaption>
+          <button class="pane-img tall" id="zoom" aria-label="View detection result full size"><img id="img-annotated" alt="Image annotated with detected date palms"></button>
+        </figure>
+      </div>
+      <p class="hint">Each red dot marks one detected palm crown. Click the image to inspect it at full size.</p>
+      <div class="actions">
+        <button class="btn btn-primary" id="back-btn">Choose Another Scene</button>
+        <a class="btn btn-secondary" id="download-btn" download>Download Result</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">Date Palm AI &middot; Detection results are model estimates and may miss or mis-detect individual trees.</footer>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox-bar">
+      <span>AI Detection</span>
+      <div>
+        <button class="btn btn-ghost" id="lightbox-fit">100%</button>
+        <button class="btn btn-ghost" id="lightbox-close" aria-label="Close">Close</button>
+      </div>
+    </div>
+    <div class="lightbox-scroll" id="lightbox-scroll"><img id="lightbox-img" alt=""></div>
+  </div>
+
+  <script>
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const fmt = new Intl.NumberFormat("en-US");
+    const samples = [
+      { src:"../samples/s1.jpg", name:"Dense plantation",         count:321, w:617, h:324 },
+      { src:"../samples/s2.jpg", name:"Spaced rows",              count:88,  w:389, h:280 },
+      { src:"../samples/s3.jpg", name:"Young plantation",         count:124, w:738, h:414 },
+      { src:"../samples/s4.jpg", name:"Dense, split by a road",   count:907, w:678, h:452 },
+      { src:"../samples/s5.jpg", name:"Farm TYM-00724 (1.21 ha)", count:148, w:702, h:2000 },
+    ];
+    const grid = $("samples"), pick = $("view-pick"), res = $("view-results");
+    samples.forEach((s, i) => {
+      const b = document.createElement("button");
+      b.className = "sample";
+      b.innerHTML = `<img alt="" src="${s.src}"><b>${s.name}</b><span>${fmt.format(s.count)} palms detected</span>`;
+      b.onclick = () => open(i);
+      grid.appendChild(b);
+    });
+    function open(i) {
+      const s = samples[i], n = fmt.format(s.count);
+      $("res-count").textContent = n; $("stat-count").textContent = n;
+      $("res-scene").textContent = s.name;
+      $("stat-size").textContent = `${s.w} × ${s.h}`;
+      $("note-annotated").textContent = `${n} palms`;
+      $("img-annotated").src = s.src;
+      $("download-btn").href = s.src;
+      $("download-btn").setAttribute("download", `date-palms-${i + 1}.jpg`);
+      pick.hidden = true; res.hidden = false; window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    $("back-btn").onclick = () => { res.hidden = true; pick.hidden = false; window.scrollTo({ top: 0, behavior: "smooth" }); };
+    const box = $("lightbox"), sc = $("lightbox-scroll"), bi = $("lightbox-img");
+    $("zoom").onclick = () => { bi.src = $("img-annotated").src; sc.classList.remove("actual"); $("lightbox-fit").textContent = "100%"; box.hidden = false; document.body.style.overflow = "hidden"; };
+    const close = () => { box.hidden = true; document.body.style.overflow = ""; };
+    $("lightbox-close").onclick = close;
+    $("lightbox-fit").onclick = () => { const a = sc.classList.toggle("actual"); $("lightbox-fit").textContent = a ? "Fit" : "100%"; };
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !box.hidden) close(); });
+  })();
+  </script>
+</body>
+</html>
