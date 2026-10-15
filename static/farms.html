@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Date Palm AI · Farm Map</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f5d3f'/%3E%3Cpath d='M16 26V14M16 14c-1-4-4-6-8-6 1 4 4 6 8 6zm0 0c1-4 4-6 8-6-1 4-4 6-8 6zm0 3c-1-3-3-4-6-4 1 3 3 4 6 4zm0 0c1-3 3-4 6-4-1 3-3 4-6 4z' stroke='%23fff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/farms.css">
+</head>
+<body class="farms-page">
+  <header class="topbar">
+    <div class="container topbar-inner wide">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 27V14M16 14c-1-4-4-6-9-6 1 4 4 6 9 6zm0 0c1-4 4-6 9-6-1 4-4 6-9 6zm0 3.5c-1-3-3-4.500-6.500-4.500 1 3 3 4.500 6.500 4.500zm0 0c1-3 3-4.500 6.500-4.500-1 3-3 4.500-6.500 4.500z"/></svg>
+        </span>
+        <div>
+          <h1 class="brand-name">Date Palm AI</h1>
+          <p class="brand-sub">Farm boundaries &amp; palm counting</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="active" href="/farms">Farm map</a>
+        <a href="/">Upload image</a>
+      </nav>
+      <div class="status" id="status" data-state="loading" role="status">
+        <span class="status-dot"></span><span id="status-text">Connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="farm-layout">
+    <aside class="side" id="side">
+      <section class="panel">
+        <label class="panel-title" for="search">Find a farm</label>
+        <form id="search-form" class="search">
+          <input id="search" type="text" placeholder="Farm code, e.g. TYM-00012" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary" type="submit">Go</button>
+        </form>
+        <p class="form-error small" id="search-error" hidden></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Layers</h2>
+          <span class="muted" id="meta-line"></span>
+        </div>
+        <ul class="regions" id="regions"></ul>
+        <p class="legend">
+          <span class="key counted"></span>counted
+          <span class="key captured"></span>imagery ready
+          <span class="key missing"></span>needs capture
+        </p>
+      </section>
+
+      <section class="panel" id="selection-panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Selection <span class="count-pill" id="sel-count">0</span></h2>
+          <button class="link" id="clear-btn" hidden>Clear</button>
+        </div>
+        <p class="muted" id="sel-hint">Click farm polygons on the map to select them (click again to deselect).</p>
+        <ul class="chips" id="chips"></ul>
+        <div class="field source-field">
+          <label for="source-select">Imagery</label>
+          <select id="source-select">
+            <option value="live">Capture new from Google Earth (and save it)</option>
+            <option value="saved">Use a saved capture (no Earth needed)</option>
+          </select>
+          <div id="saved-picker" hidden style="margin-top:8px">
+            <select id="capture-select" aria-label="Saved capture"></select>
+            <p class="muted" id="saved-note" style="margin:6px 0 0"></p>
+            <button class="link" id="delete-capture" hidden>Delete this saved capture</button>
+          </div>
+          <label for="date-mode" style="display:block;margin-top:10px;font-size:.84rem;font-weight:550">Imagery date</label>
+          <select id="date-mode" style="width:100%;margin-top:6px">
+            <option value="">Newest well-lit date (recommended)</option>
+            <option value="newest">Earth's very newest, even if dark</option>
+          </select>
+          <p class="muted" id="refresh-wrap" style="margin:6px 0 0">A new capture is saved under the farm's code, so you can count it again later without Google Earth.</p>
+        </div>
+        <button class="btn btn-primary block" id="count-btn" disabled>Count palms in selection</button>
+        <div class="confirm" id="confirm" hidden>
+          <p id="confirm-text"></p>
+          <div class="result-actions"><button class="btn btn-primary" id="confirm-go">Start</button><button class="btn btn-secondary" id="confirm-no">Cancel</button></div>
+        </div>
+        <div class="progress" id="progress" hidden><span id="progress-bar"></span></div>
+        <p class="muted" id="progress-text" hidden></p>
+        <button class="link" id="cancel-job" hidden>Cancel</button>
+        <p class="form-error small" id="count-error" hidden></p>
+        <details class="advanced-lite">
+          <summary>Detection settings</summary>
+          <div class="field">
+            <label for="model-select">Model</label>
+            <select id="model-select"></select>
+          </div>
+          <div class="field">
+            <label for="conf-range">Confidence <output id="conf-out">0.15</output></label>
+            <input type="range" id="conf-range" min="0.05" max="0.90" step="0.01" value="0.15">
+          </div>
+        </details>
+      </section>
+
+      <section class="panel" id="areas-panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Custom area</h2>
+          <a class="link" id="areas-export" href="/api/farms/export.csv?kind=area">Export CSV</a>
+        </div>
+        <p class="muted" id="draw-hint">Draw any polygon on the map, then count the palms inside it from Google Earth imagery.</p>
+        <button class="btn btn-secondary block" id="draw-btn">Draw an area</button>
+        <form id="area-form" class="area-form" hidden>
+          <input id="area-name" type="text" placeholder="Name this area (optional)" maxlength="60">
+          <p class="muted" id="area-size"></p>
+          <div class="result-actions"><button class="btn btn-primary" type="submit">Save &amp; select</button><button class="btn btn-secondary" type="button" id="area-discard">Discard</button></div>
+        </form>
+        <p class="form-error small" id="area-error" hidden></p>
+      </section>
+
+      <section class="panel" id="result-panel" hidden>
+        <div class="panel-head">
+          <h2 class="panel-title">Result</h2>
+        </div>
+        <div id="result-body"></div>
+      </section>
+
+      <section class="panel" id="earth-panel">
+        <div class="panel-head"><h2 class="panel-title">Google Earth Pro</h2></div>
+        <p class="earth-status" id="earth-status" data-linked="false"><span class="dot"></span><span id="earth-status-text">Checking Google Earth…</span></p>
+        <p class="muted">Capturing needs Earth Pro open and linked. The app then flies Earth to each farm and saves the imagery itself, so don't use the mouse while it runs.</p>
+        <div class="result-actions">
+          <button class="btn btn-secondary" id="earth-link-btn">Link Google Earth</button>
+          <a class="btn btn-secondary" href="/earth/palm-ai.kml" download="Date Palm AI.kml">Download link file</a>
+        </div>
+        <p class="muted" id="earth-msg" hidden></p>
+      </section>
+
+      <section class="panel totals" id="totals-panel">
+        <div class="panel-head"><h2 class="panel-title">Totals</h2><a class="link" id="export-link" href="/api/farms/export.csv">Export CSV</a></div>
+        <p class="big" id="total-palms">0</p>
+        <p class="muted" id="total-line">palms counted in 0 farms</p>
+      </section>
+    </aside>
+
+    <div class="map-wrap">
+      <div id="map" aria-label="Farm map"></div>
+      <div class="map-note" id="map-note" hidden></div>
+    </div>
+  </main>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox-bar">
+      <span id="lightbox-title"></span>
+      <div>
+        <button class="btn btn-ghost" id="lightbox-toggle">Show clean image</button>
+        <button class="btn btn-ghost" id="lightbox-fit">100%</button>
+        <button class="btn btn-ghost" id="lightbox-close" aria-label="Close">Close</button>
+      </div>
+    </div>
+    <div class="lightbox-scroll" id="lightbox-scroll"><img id="lightbox-img" alt=""></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="/static/farms.js"></script>
+</body>
+</html>

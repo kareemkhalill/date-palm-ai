@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Date Palm AI – Documentation</title>
+<style>
+  :root {
+    --bg: #f6f4ee; --surface: #ffffff; --ink: #1d2620; --ink2: #55615a; --ink3: #8a948d; --line: #e4e1d7;
+    --accent: #2f5d3f; --accent-soft: #e8f0ea; --warn: #fff6e0; --warn-ink: #6b4e00; --code: #f1efe7;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141a16; --surface: #1c241f; --ink: #e8ece9; --ink2: #aab5ae; --ink3: #7d8a82; --line: #2b362f;
+            --accent: #7bc196; --accent-soft: #223329; --warn: #3a3017; --warn-ink: #e8cf8a; --code: #232d27; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  a { color: var(--accent); }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+  nav { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 28px 20px; border-right: 1px solid var(--line); }
+  nav .brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  nav .sub { color: var(--ink3); font-size: .82rem; margin-bottom: 22px; }
+  nav a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--ink2); text-decoration: none; font-size: .9rem; }
+  nav a:hover { background: var(--accent-soft); color: var(--accent); }
+  nav .group { margin: 16px 10px 4px; font-size: .7rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink3); font-weight: 600; }
+  main { padding: 36px 40px 80px; min-width: 0; }
+  h1 { font-size: 2.2rem; letter-spacing: -.025em; margin: 0 0 8px; line-height: 1.15; }
+  h2 { font-size: 1.55rem; letter-spacing: -.015em; margin: 56px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
+  h2:first-of-type { border-top: 0; }
+  h3 { font-size: 1.1rem; margin: 30px 0 8px; }
+  p { margin: 0 0 14px; }
+  .lead { font-size: 1.12rem; color: var(--ink2); max-width: 62ch; }
+  ul, ol { padding-left: 1.4em; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  code { background: var(--code); padding: 1px 6px; border-radius: 6px; font: .88em/1.4 Consolas, "Cascadia Mono", monospace; }
+  pre { background: var(--code); padding: 14px 16px; border-radius: var(--radius); overflow-x: auto; margin: 0 0 18px; border: 1px solid var(--line); }
+  pre code { background: none; padding: 0; font-size: .86rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: .92rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin: 0 0 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .grid .card { margin: 0; }
+  .grid h3 { margin: 0 0 6px; font-size: 1rem; }
+  .note, .warn { padding: 12px 16px; border-radius: 12px; margin: 0 0 18px; font-size: .94rem; }
+  .note { background: var(--accent-soft); }
+  .warn { background: var(--warn); color: var(--warn-ink); }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 99px; font-size: .74rem; font-weight: 600; vertical-align: 2px; }
+  .tag.ok { background: var(--accent-soft); color: var(--accent); }
+  .tag.part { background: var(--warn); color: var(--warn-ink); }
+  .tag.no { background: #f6dcd8; color: #8c3326; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 20px; }
+  .flow span.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: .88rem; }
+  .flow span.arrow { color: var(--ink3); }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding: 4px 0 4px 44px; margin: 10px 0; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .9rem; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    main { padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Contents">
+  <div class="brand">Date Palm AI</div>
+  <div class="sub">Project documentation</div>
+  <div class="group">Start</div>
+  <a href="#overview">Overview</a>
+  <a href="#quickstart">Quick start</a>
+  <div class="group">Using it</div>
+  <a href="#upload">Upload an image</a>
+  <a href="#farmmap">Farm map</a>
+  <a href="#count-farm">Count a farm, step by step</a>
+  <a href="#areas">Draw a custom area</a>
+  <a href="#earth">Working with Google Earth</a>
+  <a href="#imagery">Imagery options & dates</a>
+  <a href="#results">Results & exports</a>
+  <a href="#region">Region grid capture</a>
+  <div class="group">How it works</div>
+  <a href="#how">Detection pipeline</a>
+  <a href="#capture">How a capture works</a>
+  <a href="#data">Data & results folders</a>
+  <div class="group">Developing</div>
+  <a href="#structure">Project structure</a>
+  <a href="#config">Configuration</a>
+  <a href="#api">API reference</a>
+  <a href="#extend">Extending the project</a>
+  <a href="#trouble">Troubleshooting</a>
+  <a href="#status">Status & limitations</a>
+</nav>
+
+<main>
+
+<h1>Date Palm AI</h1>
+<p class="lead">Count date palms from aerial imagery with your trained YOLO26 models, for single images, for any of the 7,124 farms in your boundaries KML, or for areas you draw yourself.</p>
+
+<h2 id="overview">Overview</h2>
+<div class="grid">
+  <div class="card"><h3>Upload an image</h3><p>Drop any aerial JPG or PNG, get the palm count and an annotated image. Page: <code>/</code></p></div>
+  <div class="card"><h3>Farm map</h3><p>All farm polygons from your KML on a map. Select a farm (or draw an area), capture imagery from Google Earth Pro and get the count inside the polygon. Page: <code>/farms</code></p></div>
+  <div class="card"><h3>Google Earth link</h3><p>The app drives Google Earth Pro on the same PC: it flies to the farm, saves the image and works out its exact coordinates by itself.</p></div>
+</div>
+
+<div class="flow">
+  <span class="step">Boundaries KML</span><span class="arrow">→</span>
+  <span class="step">Select farm / draw area</span><span class="arrow">→</span>
+  <span class="step">Capture from Google Earth (saved)</span><span class="arrow">→</span>
+  <span class="step">YOLO detects palms</span><span class="arrow">→</span>
+  <span class="step">Count inside polygon</span><span class="arrow">→</span>
+  <span class="step">Image + CSV</span>
+</div>
+
+<h3>Key facts</h3>
+<ul>
+  <li><b>Models:</b> every <code>*.pt</code> in the project folder is selectable. Default: <code>yolov26l-mixed-data-70epoch.pt</code>. Multi-class models are filtered so only palm classes count.</li>
+  <li><b>Data:</b> <code>boundaries_20260921_115521 (3).kml</code> holds 16 regions and 7,124 farms (about 51,850 ha). Farm codes start with a region prefix, for example <code>TYM-</code> for Tayma (361 farms).</li>
+  <li><b>Everything runs locally</b> on your Windows PC. The only network use is the map background tiles (OpenStreetMap / Esri) and the Leaflet scripts on the farm map.</li>
+  <li><b>Counts are model estimates.</b> They have not been checked against a hand count yet (see <a href="#status">Status</a>).</li>
+</ul>
+
+<h2 id="quickstart">Quick start</h2>
+<h3>Requirements</h3>
+<ul>
+  <li>Windows 10 or 11, Python 3.12.</li>
+  <li>An NVIDIA GPU is used automatically when present (tested on a GTX 1650 Ti with 4 GB); otherwise the CPU is used.</li>
+  <li>For capturing: Google Earth Pro installed and running on the same PC.</li>
+</ul>
+<h3>Install (once)</h3>
+<pre><code>cd D:\date-palm-yolo
+python -m venv .venv
+.venv\Scripts\activate
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118   # omit the index URL for CPU only
+pip install -r requirements.txt
+pip install pyautogui pywin32 shapely scipy                                         # farm map + Google Earth capture</code></pre>
+<h3>Run</h3>
+<pre><code>.venv\Scripts\python app.py</code></pre>
+<p>Then open <b>http://127.0.0.1:8000</b>. The model needs up to a minute to load; the header shows <i>AI Model Ready</i> when it's done. Always use this address: opening the HTML files directly can't reach the AI backend. To stop the server, close its window or press <code>Ctrl+C</code>.</p>
+<div class="warn"><code>start.bat</code> exists but its startup problem was never fixed. Use the command above.</div>
+<h3>Import your farm boundaries (once, or when the KML changes)</h3>
+<pre><code>.venv\Scripts\python tools\import_kml.py "boundaries_20260921_115521 (3).kml"</code></pre>
+<p>This reads every region and farm and writes <code>data/farms.json</code>. Add <code>--prefix TYM</code> to keep only one code prefix.</p>
+
+<h2 id="upload">Upload an image</h2>
+<ol class="steps">
+  <li>Open <code>/</code>, then drop a JPG/PNG on the upload box (or click to browse).</li>
+  <li>Optional: choose a different <b>Model</b> in the header, or open <b>Advanced Settings</b> to change the confidence (default 0.15) and the processing mode.</li>
+  <li>Press <b>Analyze Image</b>. You get the palm count, the average detection confidence, the image size, and the original next to the annotated image (each palm is a red dot).</li>
+  <li>Use <b>Download Result</b> for the annotated image or <b>Download Report</b> for a text summary.</li>
+</ol>
+<p>Processing modes: <i>Automatic</i> (recommended) measures palm size in your image and tiles it so palms appear about 24 px wide to the model; <i>Single pass</i> squeezes the whole image to 640 px (only sensible for small crops); <i>Fixed tiles</i> uses 640 px windows at full resolution. Limits: JPG/PNG, 100 MB, 250 megapixels.</p>
+
+<h2 id="farmmap">Farm map</h2>
+<p>Open <code>/farms</code>. The map shows all regions (dashed outlines) and farms (polygons). Colours:</p>
+<table>
+  <tr><th>Colour</th><th>Meaning</th></tr>
+  <tr><td>Grey, dashed</td><td>Farm, not counted yet</td></tr>
+  <tr><td>Green (darker = denser)</td><td>Counted; the palm count is shown when zoomed in</td></tr>
+  <tr><td>Yellow outline</td><td>Selected</td></tr>
+  <tr><td>Purple</td><td>A custom area you drew</td></tr>
+</table>
+<h3>The side panel</h3>
+<ul>
+  <li><b>Find a farm:</b> type a code such as <code>TYM-00798</code> and press Go.</li>
+  <li><b>Layers:</b> show or hide a region, zoom to it, or <i>Select all farms</i> in it.</li>
+  <li><b>Selection:</b> the selected polygons, the <b>Imagery</b> options, and the <b>Count palms</b> button.</li>
+  <li><b>Custom area:</b> draw your own polygon.</li>
+  <li><b>Result:</b> count, density, labelled image, imagery date and an <i>Open in Google Earth</i> button.</li>
+  <li><b>Google Earth Pro:</b> link status and the <i>Link Google Earth</i> button.</li>
+  <li><b>Totals:</b> palms counted so far, and <i>Export CSV</i>.</li>
+</ul>
+<p>The background map can be switched (top right) between street map, Esri satellite and none. These are for orientation only; counting uses the images captured from Google Earth.</p>
+
+<h2 id="count-farm">Count a farm, step by step</h2>
+<ol class="steps">
+  <li><b>Start the app</b> and open <code>http://127.0.0.1:8000/farms</code>.</li>
+  <li><b>Start Google Earth Pro</b> and leave its window open and in front.</li>
+  <li>In the app press <b>Link Google Earth</b> and wait for the green “linked” dot. The app answers Earth's confirmation prompts for you.</li>
+  <li><b>Select the farm:</b> click its polygon, or type its code. Several farms can be selected (click each, or use <i>Select all farms</i> for a region).</li>
+  <li>Choose <b>Imagery → Capture new from Google Earth (and save it)</b>. Leave <b>Imagery date</b> on <i>Newest well-lit date</i>.</li>
+  <li>Press <b>Count palms</b>. The app tells you how many Earth captures are needed and the time, then asks you to confirm.</li>
+  <li><b>Don't touch the mouse or keyboard</b> while it captures: the app clicks in Earth for you. Expect about 1–3 minutes per farm.</li>
+  <li>When it finishes, the farm turns green on the map and the panel shows the count and the image. The capture is saved for later.</li>
+</ol>
+<div class="note"><b>Counting again later without Google Earth:</b> choose <i>Use a saved capture (no Earth needed)</i>. If the farm has several saved captures you pick which one. This takes a few seconds per farm.</div>
+
+<h2 id="areas">Draw a custom area</h2>
+<ol class="steps">
+  <li>Press <b>Draw an area</b> in the <i>Custom area</i> panel and click the corners on the map. Click the first point to finish.</li>
+  <li>Give it a name (optional) and press <b>Save &amp; select</b>. It gets a code such as <code>AREA-0001</code>.</li>
+  <li>Count it exactly like a farm. Palms are counted inside your polygon only. Areas are limited to 25 km².</li>
+</ol>
+<p>Areas are stored in <code>data/areas.json</code>; the <i>Delete area</i> button removes one. <i>Export CSV</i> in that panel lists area counts.</p>
+
+<h2 id="earth">Working with Google Earth</h2>
+<p>The app and Earth are connected through a KML <b>network link</b>: Earth regularly asks the app for farm polygons and for a “camera” position. The app uses the camera to make Earth fly to a place. There is no API that returns Earth's imagery, so the app saves it by driving Earth's own <i>Save Image</i> command with simulated mouse and keyboard.</p>
+<h3>What the app sets up in Earth automatically</h3>
+<ul>
+  <li>Earth window maximised, resolution <b>4K (3840×2160)</b>.</li>
+  <li><b>Sun</b>, <b>Atmosphere</b>, Grid, Overview map and Scale legend switched off; Title, Legend, Scale and Compass overlays switched off.</li>
+  <li>The farm polygons are hidden from Earth during a capture so they aren't saved into the picture.</li>
+  <li>A well-lit imagery date is chosen (see <a href="#imagery">Imagery options</a>).</li>
+  <li>Earth's “Crash Detected” and “only open files you trust” prompts are answered for you.</li>
+</ul>
+<h3>Linking</h3>
+<p><b>Link Google Earth</b> (or <code>POST /earth/open-link</code>) loads <code>Date Palm AI.kml</code> into Earth. You must link again after restarting the server. <i>Open in Google Earth</i> on a farm makes Earth fly to it.</p>
+<h3>Rules while capturing</h3>
+<ul>
+  <li>Earth Pro must be running, maximised and not covered by other windows.</li>
+  <li>Nobody should use the mouse or keyboard. Moving the mouse into a screen corner aborts the automation (pyautogui safety).</li>
+  <li>Earth is slow to start and has crashed once during testing; the app handles the restart dialogs.</li>
+</ul>
+
+<h2 id="imagery">Imagery options & dates</h2>
+<table>
+  <tr><th>Option</th><th>What it does</th></tr>
+  <tr><td><b>Capture new from Google Earth (and save it)</b></td><td>Takes a new capture, counts it, and saves the farm-sized capture under <code>data/saved/&lt;code&gt;/</code>. Captures are never reused silently.</td></tr>
+  <tr><td><b>Use a saved capture</b></td><td>Counts from a capture saved earlier, with no Earth. With one polygon selected you choose which saved capture; with several, each uses its newest.</td></tr>
+  <tr><td><b>Imagery date: newest well-lit</b> (default)</td><td>Steps through Earth's Historical Imagery from the newest date backwards and stops at the first well-lit one.</td></tr>
+  <tr><td><b>Imagery date: Earth's very newest</b></td><td>Uses the latest imagery even if it is dark. Counts will be too low in that case.</td></tr>
+</table>
+<h3>Why dates matter</h3>
+<p>The newest Tayma imagery (late 2025 to early 2026) is nearly black in the palm groves, so crowns can't be seen. On the same farm, a clear date gave <b>375</b> palms and the dark newest imagery gave about <b>20</b>. Brightening the dark image only recovered about 12% of the palms, because the detail isn't in the image. The date picker therefore measures brightness and contrast of each date and chooses the newest one that is well lit. It takes about 2 minutes once per capture job.</p>
+<p>The app checks the brightness of every polygon's imagery. “Dark” or “very dark” results show a warning on the page. Dark imagery is brightened automatically before detection, and dark previews are brightened on the map.</p>
+<div class="note"><b>Earth's time slider fades out</b> when the mouse isn't over it. It is still there: hover the top-left of Earth's map, or use <i>View → Historical Imagery</i>.</div>
+
+<h2 id="results">Results & exports</h2>
+<ul>
+  <li><b>On the page:</b> count, palms per hectare, average confidence, imagery date, the labelled image (polygon outlined, palms dotted, code and count in the banner) and a clean version. Click the image for a full-size viewer.</li>
+  <li><b>Files:</b> <code>results/farms/images/&lt;code&gt;.jpg</code> (latest labelled image), <code>raw/</code> (clean), <code>points/</code> (palm coordinates), <code>summary.json</code>.</li>
+  <li><b>History:</b> every run is kept in <code>results/farms/runs/&lt;code&gt;/&lt;time&gt;/</code> with <code>capture.jpg</code>, <code>detection.jpg</code> and <code>result.json</code>.</li>
+  <li><b>CSV:</b> <i>Export CSV</i> lists code, region, type, status, count, area, palms/ha, confidence, imagery source and date, model and time, with a total row. Use <code>/api/farms/export.csv?region=Tayma</code> for one region and <code>?kind=area</code> for custom areas.</li>
+  <li><b>Google Earth:</b> <code>/earth/farm/&lt;code&gt;.kml</code> gives a farm's polygon plus every detected palm as a point, to check over Earth's own imagery.</li>
+</ul>
+
+<h2 id="region">Region grid capture <span class="tag part">written, not finished</span></h2>
+<p>For counting thousands of farms, capturing one farm at a time is too slow (one Earth capture takes about 30–100 s). The region grid capture covers an area with a <b>grid of overlapping Earth views</b> instead, so one view serves many farms.</p>
+<table>
+  <tr><th>Mode</th><th>Captures</th></tr>
+  <tr><td><b>Farm areas only</b></td><td>Only grid cells that touch a farm polygon. Palms outside farms are reported separately.</td></tr>
+  <tr><td><b>Whole region</b></td><td>Every cell that touches the region polygon.</td></tr>
+</table>
+<table>
+  <tr><th>Camera height</th><th>Ground per view</th><th>Palm width at 8K / 4K</th><th>Views for all 7,124 farms</th></tr>
+  <tr><td>600 m</td><td>~690 × 365 m</td><td>~83 / 41 px</td><td>6,441</td></tr>
+  <tr><td>800 m</td><td>~920 × 490 m</td><td>~62 / 31 px</td><td>(not computed)</td></tr>
+  <tr><td>1000 m</td><td>~1,150 × 610 m</td><td>~50 / 25 px</td><td>2,944</td></tr>
+</table>
+<p>The run (code in <code>palmai/regions.py</code>) prepares Earth, captures every cell, detects palms in each cell for the outside-farm count (palms cut by a cell border are dropped when a neighbouring cell sees them whole; duplicates within 1.5 m are merged), then counts every farm by cropping it out of the cells and saves that crop under the farm's code. It can be cancelled and resumed. Endpoints: <code>POST /api/farms/regions/estimate</code>, <code>/regions/run</code>, <code>GET /regions/result</code>.</p>
+<div class="warn"><b>Not finished:</b> there is no button for it in the page yet, it has not been run on a real region, and a map layer stitched from the cells (a GeoTIFF / tiles) is not built. Which camera height is best has not been measured (only 600 m at 8K was verified: 375 palms on a dense farm).</div>
+
+<h2 id="how">Detection pipeline</h2>
+<ol class="steps">
+  <li><b>Palm size sets the scale.</b> The models were trained at 640 px and see best when a palm is about 24 px wide. In <i>automatic</i> mode the app probes the image, measures the median palm width and picks a tiling window so palms appear about 24 px (<code>PALM_TARGET_PX</code>). For farm crops, the expected palm size (7 m) is used when too few palms are found to measure.</li>
+  <li><b>Tiling.</b> The image is cut into overlapping windows, each run through the model, boxes are shifted back to image coordinates and duplicates across tiles are removed (NMS plus a check that drops palms cut by one tile's border when the neighbour sees them whole).</li>
+  <li><b>Palm classes only.</b> Models trained with buildings, roads, fields and trees are filtered to their palm classes. Models with two palm classes (<code>Date-Palm</code> and <code>Palm tree</code>) are de-duplicated so one tree counts once.</li>
+  <li><b>Dark imagery.</b> If the polygon's brightness is low, a gamma lift is applied to the image before detection (and to the images shown).</li>
+  <li><b>Inside the polygon.</b> Each palm is the centre of its box; only centres inside the farm/area polygon are counted.</li>
+  <li><b>Output.</b> Dots are drawn at the palm centres. The average confidence is the mean confidence of the final detections (not model accuracy).</li>
+</ol>
+<p>Defaults: confidence <b>0.15</b>, up to 20,000 detections per image. If another program (for example Google Earth) takes the GPU memory, inference falls back to the CPU automatically.</p>
+
+<h2 id="capture">How a capture works</h2>
+<ol class="steps">
+  <li>The app sets the <b>camera</b> (served to Earth in <code>/earth/camera.kml</code>) to the polygon's centre, top-down, at 600 m. Earth flies there.</li>
+  <li>Four small magenta <b>markers</b> appear in Earth's view at known coordinates, 78% of the way to each corner.</li>
+  <li>The app waits until the view stops changing (flight finished, tiles loaded).</li>
+  <li>It clicks Earth's <i>Save Image</i> toolbar, picks the resolution, types the file name and waits for the file.</li>
+  <li>It finds the markers in the saved image. Their pixel positions give the exact ground area the image covers (linear fit; the marker residual is checked), then the markers are painted out.</li>
+  <li>Polygons bigger than one view use several captures that are stitched into one crop around the polygon (with a margin of 8% or at least 12 m). The crop is saved for the farm.</li>
+</ol>
+
+<h2 id="data">Data & results folders</h2>
+<table>
+  <tr><th>Path</th><th>Contents</th></tr>
+  <tr><td><code>data/farms.json</code></td><td>All regions and farms from your KML (generated by <code>tools/import_kml.py</code>)</td></tr>
+  <tr><td><code>data/areas.json</code></td><td>Custom areas you drew</td></tr>
+  <tr><td><code>data/saved/&lt;code&gt;/</code></td><td>Saved captures per farm/area: <code>&lt;time&gt;.jpg</code>, <code>.json</code> (coordinates), <code>_status.png</code> (Earth's status bar with the imagery date)</td></tr>
+  <tr><td><code>data/live/</code></td><td>Temporary Earth captures of the current job (cleared at the start of each job)</td></tr>
+  <tr><td><code>data/regions/…</code></td><td>Region grid runs (cells, manifest, run status)</td></tr>
+  <tr><td><code>data/previews/</code></td><td>Downscaled copies for the map</td></tr>
+  <tr><td><code>results/</code></td><td>Upload results (<code>original/</code>, <code>annotated/</code>) and <code>farms/</code> (see <a href="#results">Results</a>) and <code>regions/</code></td></tr>
+</table>
+<p>A farm-sized saved capture is about 1–10 MB. Deleting a saved capture is done from the picker on the farm map.</p>
+
+<h2 id="structure">Project structure</h2>
+<table>
+  <tr><th>File</th><th>Role</th></tr>
+  <tr><td><code>app.py</code></td><td>FastAPI app: pages, <code>/health</code>, <code>/predict</code>, mounts the routers and static folders</td></tr>
+  <tr><td><code>palmai/config.py</code></td><td>All settings, overridable with environment variables</td></tr>
+  <tr><td><code>palmai/detector.py</code></td><td>Model registry (loaded once, cached), automatic scale, tiling, NMS merging, GPU→CPU fallback</td></tr>
+  <tr><td><code>palmai/images.py</code></td><td>Upload validation and decoding, saving upload results</td></tr>
+  <tr><td><code>palmai/geo.py</code></td><td>KML parsing, farms and regions, pixel↔coordinate conversion</td></tr>
+  <tr><td><code>palmai/farms.py</code></td><td>The farm service: analysis of any polygon, saved captures, custom areas, images, background jobs, CSV</td></tr>
+  <tr><td><code>palmai/farms_api.py</code></td><td>The <code>/api/farms/*</code> endpoints</td></tr>
+  <tr><td><code>palmai/imagery.py</code></td><td>Imagery sources: live Earth captures, planning how many are needed</td></tr>
+  <tr><td><code>palmai/earth.py</code>, <code>earth_api.py</code></td><td>The Earth link: network-link KML, camera, balloons, fly-to</td></tr>
+  <tr><td><code>palmai/earth_capture.py</code></td><td>Drives Earth: settings, date picker, Save Image, georeferencing (Windows only)</td></tr>
+  <tr><td><code>palmai/capture.py</code></td><td>Grid planning for Earth views (view size depends on camera height)</td></tr>
+  <tr><td><code>palmai/regions.py</code></td><td>Region grid runs</td></tr>
+  <tr><td><code>static/</code></td><td><code>index.html/app.js</code> (upload page), <code>farms.html/js/css</code> (farm map), <code>style.css</code></td></tr>
+  <tr><td><code>tools/</code></td><td><code>import_kml.py</code> and <code>plan_captures.py</code> (older stored-capture planning)</td></tr>
+  <tr><td><code>*.pt</code></td><td>Your trained models (not modified by the app)</td></tr>
+</table>
+
+<h2 id="config">Configuration</h2>
+<p>Settings live in <code>palmai/config.py</code> and can be overridden with environment variables, for example <code>set PALM_LIVE_RES=8k</code> before starting the server.</p>
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Meaning</th></tr>
+  <tr><td><code>PALM_DEFAULT_MODEL</code></td><td>yolov26l-mixed-data-70epoch.pt</td><td>Model used first</td></tr>
+  <tr><td><code>PALM_MODELS_DIR</code></td><td>project folder</td><td>Where <code>*.pt</code> models are looked up</td></tr>
+  <tr><td><code>PALM_CONF</code></td><td>0.15</td><td>Detection confidence threshold</td></tr>
+  <tr><td><code>PALM_TARGET_PX</code></td><td>24</td><td>Palm width the model should see (automatic scale)</td></tr>
+  <tr><td><code>PALM_EXPECTED_M</code></td><td>7.0</td><td>Expected palm crown width in metres (farm crops)</td></tr>
+  <tr><td><code>PALM_MAX_DET</code></td><td>20000</td><td>Max detections per image</td></tr>
+  <tr><td><code>PALM_LIVE_RES</code></td><td>4k</td><td>Earth Save Image size: <code>4k</code> or <code>8k</code></td></tr>
+  <tr><td><code>PALM_LIVE_RANGE_M</code></td><td>600</td><td>Earth camera height for single-farm captures</td></tr>
+  <tr><td><code>PALM_AUTO_DATE</code></td><td>1</td><td>Pick a well-lit imagery date before each capture job (0 = off)</td></tr>
+  <tr><td><code>PALM_LIVE_MAX_CAPTURES</code></td><td>40</td><td>Most Earth views one job may take</td></tr>
+  <tr><td><code>PALM_REGION_MAX_CAPTURES</code></td><td>900</td><td>Most Earth views one region run may take</td></tr>
+  <tr><td><code>PALM_REGION_KEEP_ALL</code></td><td>0</td><td>1 keeps every finished region run (cells are large)</td></tr>
+  <tr><td><code>PALM_FARM_MARGIN</code>, <code>_MIN_M</code></td><td>0.08, 12</td><td>Context around a farm in its crop</td></tr>
+  <tr><td><code>PALM_FARM_DETECT_PX</code>, <code>PALM_FARM_IMAGE_PX</code></td><td>6000, 2000</td><td>Largest crop detected / saved image size</td></tr>
+  <tr><td><code>PALM_DATA_DIR</code>, <code>PALM_RESULTS_DIR</code></td><td>data, results</td><td>Storage folders</td></tr>
+  <tr><td><code>PALM_MAX_UPLOAD_MB</code>, <code>PALM_MAX_PIXELS</code></td><td>100, 250M</td><td>Upload limits</td></tr>
+  <tr><td><code>PALM_MODEL_CACHE</code></td><td>2</td><td>Models kept in memory</td></tr>
+</table>
+
+<h2 id="api">API reference</h2>
+<p>Interactive docs are also served by FastAPI at <code>/docs</code>.</p>
+<h3>General</h3>
+<table>
+  <tr><th>Endpoint</th><th>Description</th></tr>
+  <tr><td><code>GET /health</code></td><td>Model ready, model list, device, defaults</td></tr>
+  <tr><td><code>POST /predict</code></td><td>Upload an image: form fields <code>image</code>, <code>confidence</code>, <code>mode</code>, <code>model</code>. Returns count, confidence, image URLs</td></tr>
+</table>
+<h3>Farms and areas (<code>/api/farms</code>)</h3>
+<table>
+  <tr><th>Endpoint</th><th>Description</th></tr>
+  <tr><td><code>GET /meta</code> · <code>/geojson</code> · <code>/regions</code> · <code>/captures</code></td><td>Totals, farm polygons, region outlines, capture list for map overlays</td></tr>
+  <tr><td><code>GET /{code}</code></td><td>One farm or area with its latest result</td></tr>
+  <tr><td><code>POST /estimate</code></td><td>How many Earth captures a selection needs</td></tr>
+  <tr><td><code>POST /analyze</code></td><td>Body: <code>codes</code>, <code>source</code> (<code>live</code> or <code>saved</code>), <code>capture_id</code>, <code>imagery_date</code> (<code>""</code>, <code>newest</code>, <code>keep</code>), <code>model</code>, <code>confidence</code>. One saved polygon answers directly; everything else returns a <code>job</code> id</td></tr>
+  <tr><td><code>GET /jobs/{id}</code> · <code>POST /jobs/{id}/cancel</code></td><td>Progress, results so far, skipped polygons; cancel</td></tr>
+  <tr><td><code>GET /{code}/captures</code> · <code>DELETE /{code}/captures/{id}</code></td><td>Saved captures of a polygon</td></tr>
+  <tr><td><code>GET/POST /areas</code> · <code>DELETE /areas/{key}</code></td><td>Custom areas</td></tr>
+  <tr><td><code>GET /export.csv</code></td><td>Counts as CSV (<code>region</code>, <code>kind</code> filters)</td></tr>
+  <tr><td><code>POST /regions/estimate</code> · <code>/regions/run</code> · <code>GET /regions/result</code></td><td>Region grid capture (see <a href="#region">Region</a>)</td></tr>
+</table>
+<h3>Google Earth (<code>/earth</code>)</h3>
+<table>
+  <tr><th>Endpoint</th><th>Description</th></tr>
+  <tr><td><code>GET /palm-ai.kml</code> · <code>/farms.kml</code> · <code>/camera.kml</code></td><td>The network-link files Earth loads</td></tr>
+  <tr><td><code>POST /open-link</code> · <code>/fly/{code}</code></td><td>Local only: open the link in Earth; fly Earth to a farm</td></tr>
+  <tr><td><code>POST /camera</code> · <code>/best-date</code></td><td>Local only: move Earth's camera; find a well-lit imagery date</td></tr>
+  <tr><td><code>GET /status</code></td><td>Is Earth linked (polling)?</td></tr>
+  <tr><td><code>GET /farm/{code}.kml</code> · <code>/count/{code}</code></td><td>A farm with its palm points; the balloon “Count palms” page</td></tr>
+</table>
+
+<h2 id="extend">Extending the project</h2>
+<h3>Add a model</h3>
+<p>Copy the <code>.pt</code> file into the project folder. It appears in the model dropdown immediately. It needs a class whose name contains “palm”; otherwise the app reports an error instead of guessing.</p>
+<h3>Add a new imagery source</h3>
+<p>Counting needs only a georeferenced image: a picture plus its bounds (west, south, east, north). <code>palmai/imagery.py</code> turns a source into <code>Capture</code> objects; <code>FarmService.analyze</code> in <code>farms.py</code> stitches them, counts and saves. To add a source (for example a licensed imagery provider or a drone GeoTIFF), produce <code>Capture</code> objects for the polygon and call <code>analyze</code> with <code>caps_override</code>, exactly as the region run does. Saved captures use the same format (<code>data/saved/&lt;code&gt;/*.json</code> with <code>bounds</code>).</p>
+<h3>Change what is detected</h3>
+<p>Palm class selection is in <code>PalmDetector._get_model</code> (classes containing “palm”). Scale and tiling are in <code>detector.py</code> (<code>_auto_window</code>, <code>_detect_tiled</code>, <code>_merge</code>).</p>
+<h3>Conventions</h3>
+<ul>
+  <li>Coordinates are WGS84 (lon, lat). Pixel ↔ coordinate conversion is in <code>geo.GeoImage</code>.</li>
+  <li>Long operations run as background jobs (<code>JobManager</code>), one at a time, because the GPU and Google Earth are shared.</li>
+  <li>The Earth automation depends on screen positions (a maximised Earth window at 1920×1080). Different screen sizes or Earth layouts need the offsets in <code>earth_capture.py</code> adjusted.</li>
+</ul>
+
+<h2 id="trouble">Troubleshooting</h2>
+<table>
+  <tr><th>Problem</th><th>What to do</th></tr>
+  <tr><td>Page doesn't load</td><td>The server isn't running. Start it with <code>.venv\Scripts\python app.py</code>.</td></tr>
+  <tr><td>“Google Earth is not linked”</td><td>Press <i>Link Google Earth</i>. After any server restart you must link again. Earth must be running.</td></tr>
+  <tr><td>Earth shows “Crash Detected”</td><td>Choose <i>Continue</i>. The app does this itself during linking.</td></tr>
+  <tr><td>Count is very low / “very dark” warning</td><td>The imagery date is dark. Keep <i>Imagery date</i> on “newest well-lit date”, or pick a bright date in Earth.</td></tr>
+  <tr><td>Count is 0 and the image is green</td><td>Earth's farm polygons were in the picture. The app hides them during captures; link again and retry.</td></tr>
+  <tr><td>“Earth saved a … image”</td><td>Earth's Save Image resolution was wrong. The app sets it each time; make sure Earth's window is maximised and not covered.</td></tr>
+  <tr><td>“Could not open the Historical Imagery slider”</td><td>Hover the top-left of Earth's map, or open <i>View → Historical Imagery</i>, then retry.</td></tr>
+  <tr><td>Slow or fails with a GPU error</td><td>Earth uses GPU memory too (4 GB card). The app falls back to the CPU automatically; close other GPU programs for speed.</td></tr>
+  <tr><td>The mouse moves by itself</td><td>That is the capture. Wait for it to finish; throw the mouse into a screen corner to abort.</td></tr>
+  <tr><td>Farm can't be selected / map empty</td><td>Run <code>tools/import_kml.py</code>; check <code>data/farms.json</code> exists; check the browser console.</td></tr>
+</table>
+
+<h2 id="status">Status & limitations</h2>
+<table>
+  <tr><th>Part</th><th>State</th></tr>
+  <tr><td>Upload page</td><td><span class="tag ok">working</span> tested</td></tr>
+  <tr><td>Farm map, selection, custom areas</td><td><span class="tag ok">working</span> tested (selection on some browsers was reported not available; not reproduced)</td></tr>
+  <tr><td>New capture from Google Earth + saved captures</td><td><span class="tag ok">working</span> tested on Tayma farms</td></tr>
+  <tr><td>Automatic well-lit date picker</td><td><span class="tag ok">working</span> tested once on Tayma</td></tr>
+  <tr><td>Google Earth link, settings, prompts</td><td><span class="tag ok">working</span></td></tr>
+  <tr><td>4K captures (default)</td><td><span class="tag part">unverified</span> accuracy not yet compared with 8K</td></tr>
+  <tr><td>Camera-height comparison (600 / 800 / 1000 m)</td><td><span class="tag no">not done</span> the test was stopped</td></tr>
+  <tr><td>Region grid capture</td><td><span class="tag part">code only</span> no button, never run on a real region</td></tr>
+  <tr><td>Stitched local map (GeoTIFF / tiles)</td><td><span class="tag no">not built</span></td></tr>
+  <tr><td><code>start.bat</code></td><td><span class="tag no">not working</span> use the command line</td></tr>
+</table>
+<h3>Limitations</h3>
+<ul>
+  <li><b>Accuracy is unverified.</b> No farm has been hand-counted. Counts are estimates and move by about ±15% with the confidence slider. Young palms in sparse plots and palms in deep shadow are missed most often.</li>
+  <li><b>Imagery dates are Google's.</b> The newest Tayma imagery is too dark for counting; the app uses the newest well-lit date and records it.</li>
+  <li><b>Speed.</b> An Earth capture takes 30–100 s, so counting thousands of farms needs the region grid capture and overnight runs.</li>
+  <li><b>Fragile automation.</b> Capturing relies on Earth Pro's window layout on a 1920×1080 screen and on simulated input. Earth Pro desktop is scheduled to be discontinued (June 2027).</li>
+  <li><b>Windows only</b> for capturing; the upload page and counting from saved captures work wherever Python runs.</li>
+</ul>
+<div class="warn"><b>Imagery licensing.</b> Imagery saved from Google Earth Pro is subject to Google's Earth terms (generally personal and non-commercial use with attribution). Bulk downloading of Google's tiles outside Earth Pro is not supported by this project. If the counts are for company or organisation use, check the terms or ask Google for permission. Licensed providers (for example Esri, Planet, Maxar, Airbus) or your own drone imagery can be used as another imagery source (see <a href="#extend">Extending</a>).</div>
+
+</main>
+</div>
+</body>
+</html>

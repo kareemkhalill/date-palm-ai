@@ -1,0 +1,7 @@
+ultralytics>=8.4
+fastapi
+uvicorn[standard]
+python-multipart
+opencv-python-headless
+pillow
+# torch / torchvision: installed separately so you can pick the right build, see README.

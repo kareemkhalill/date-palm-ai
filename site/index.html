@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Date Palm AI – YOLO palm detection demo</title>
+<meta name="description" content="Count date palms from aerial imagery with a custom-trained YOLO26 model. Interactive demo with real detection output.">
+<meta property="og:title" content="Date Palm AI – YOLO palm detection demo">
+<meta property="og:description" content="Count date palms from aerial imagery with a custom-trained YOLO26 model.">
+<meta property="og:image" content="samples/s4.jpg">
+<style>
+  :root {
+    --bg:#0f1511; --surface:#17201a; --surface2:#1e2a22; --line:#2a382f; --ink:#e9efea; --ink2:#a6b3aa; --ink3:#74847a;
+    --accent:#7bc196; --accent2:#3f8a5c; --dot:#ee2c2c;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f6f4ee; --surface:#fff; --surface2:#eef2ee; --line:#dfe3da; --ink:#1d2620; --ink2:#55615a; --ink3:#8a948d; --accent:#2f5d3f; --accent2:#2f5d3f; }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif; }
+  a { color:var(--accent); }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 20px; }
+  header.top { display:flex; justify-content:space-between; align-items:center; padding:20px 0; gap:16px; flex-wrap:wrap; }
+  .brand { font-weight:700; letter-spacing:.01em; }
+  .brand span { color:var(--accent); }
+  nav a { margin-left:18px; text-decoration:none; color:var(--ink2); font-size:.92rem; }
+  nav a:hover { color:var(--ink); }
+  .hero { padding:44px 0 28px; }
+  .eyebrow { font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); font-weight:600; }
+  h1 { font-size:clamp(2rem,5vw,3.4rem); line-height:1.1; margin:.35em 0 .4em; letter-spacing:-.02em; max-width:18ch; }
+  .lead { color:var(--ink2); max-width:62ch; font-size:1.08rem; }
+  .btns { display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; }
+  .btn { display:inline-block; padding:11px 20px; border-radius:10px; text-decoration:none; font-weight:600; font-size:.95rem; border:1px solid var(--line); color:var(--ink); background:var(--surface); }
+  .btn.primary { background:var(--accent2); border-color:var(--accent2); color:#fff; }
+  .btn:hover { filter:brightness(1.1); }
+
+  .demo { margin:34px 0 20px; border:1px solid var(--line); background:var(--surface); border-radius:18px; overflow:hidden; }
+  .demo-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); gap:12px; flex-wrap:wrap; }
+  .demo-head h2 { margin:0; font-size:1rem; }
+  .live { font-size:.8rem; color:var(--ink3); }
+  .stage { display:grid; grid-template-columns:minmax(0,1fr) 260px; }
+  @media (max-width:820px){ .stage { grid-template-columns:1fr; } }
+  .viewer { position:relative; background:#000; min-height:260px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:crosshair; }
+  .viewer img { display:block; width:100%; max-height:70vh; object-fit:contain; }
+  .scan { position:absolute; top:0; bottom:0; width:2px; background:var(--accent); box-shadow:0 0 18px 4px var(--accent); left:0; opacity:0; pointer-events:none; }
+  .cover { position:absolute; inset:0; background:#000; transform-origin:right; pointer-events:none; }
+  .lens { position:absolute; width:170px; height:170px; border-radius:50%; border:2px solid #fff; box-shadow:0 4px 24px rgba(0,0,0,.6); background-repeat:no-repeat; pointer-events:none; display:none; }
+  .side { padding:20px; border-left:1px solid var(--line); display:flex; flex-direction:column; gap:18px; }
+  @media (max-width:820px){ .side { border-left:0; border-top:1px solid var(--line); } }
+  .count { font-size:3.4rem; font-weight:700; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .count small { display:block; font-size:.8rem; font-weight:500; color:var(--ink3); letter-spacing:.08em; text-transform:uppercase; margin-top:6px; }
+  dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:.88rem; }
+  dt { color:var(--ink3); } dd { margin:0; text-align:right; }
+  .thumbs { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:14px 18px; border-top:1px solid var(--line); }
+  .thumbs button { padding:0; border:2px solid transparent; border-radius:10px; overflow:hidden; background:var(--surface2); cursor:pointer; aspect-ratio:4/3; }
+  .thumbs button img { width:100%; height:100%; object-fit:cover; display:block; opacity:.7; transition:opacity .2s; }
+  .thumbs button[aria-pressed="true"] { border-color:var(--accent); }
+  .thumbs button[aria-pressed="true"] img, .thumbs button:hover img { opacity:1; }
+  .hint { font-size:.8rem; color:var(--ink3); }
+  .replay { background:var(--surface2); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer; font-size:.85rem; }
+
+  section { padding:44px 0 10px; }
+  h2.sec { font-size:1.6rem; letter-spacing:-.01em; margin:0 0 10px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin-top:18px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .card h3 { margin:0 0 6px; font-size:1rem; }
+  .card p { margin:0; color:var(--ink2); font-size:.92rem; }
+  .num { display:inline-flex; width:26px; height:26px; border-radius:50%; background:var(--surface2); color:var(--accent); align-items:center; justify-content:center; font-size:.8rem; font-weight:700; margin-bottom:10px; }
+  .note { margin:22px 0 0; padding:14px 18px; border-radius:12px; background:var(--surface2); color:var(--ink2); font-size:.9rem; border:1px solid var(--line); }
+  footer { margin-top:50px; padding:26px 0 40px; border-top:1px solid var(--line); color:var(--ink3); font-size:.88rem; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  @media (prefers-reduced-motion: reduce){ * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Date Palm <span>AI</span></div>
+    <nav><a href="#demo">Demo</a><a href="#how">How it works</a><a href="docs/">Docs</a><a href="https://github.com/kareemkhalill/date-palm-ai">GitHub</a></nav>
+  </header>
+
+  <div class="hero">
+    <div class="eyebrow">Computer vision · YOLO26 · Geospatial</div>
+    <h1>Count every date palm from the air.</h1>
+    <p class="lead">A custom-trained YOLO26 detector that finds individual palm crowns in satellite and drone imagery, then counts them per image or per farm polygon. Built for date farms in AlUla, Saudi Arabia.</p>
+    <div class="btns">
+      <a class="btn primary" href="#demo">Try the demo</a>
+      <a class="btn" href="https://github.com/kareemkhalill/date-palm-ai">View source</a>
+    </div>
+  </div>
+
+  <div class="demo" id="demo">
+    <div class="demo-head"><h2>Detection results</h2><span class="live">Each red dot marks one detected palm crown. Hover the image to zoom.</span></div>
+    <div class="stage">
+      <div class="viewer" id="viewer">
+        <img id="img" alt="Aerial image with detected palms marked by red dots" src="samples/s4.jpg">
+        <div class="cover" id="cover"></div>
+        <div class="scan" id="scan"></div>
+        <div class="lens" id="lens"></div>
+      </div>
+      <div class="side">
+        <div class="count"><span id="num">0</span><small>palms detected</small></div>
+        <dl>
+          <dt>Scene</dt><dd id="m-scene"></dd>
+          <dt>Image size</dt><dd id="m-size"></dd>
+          <dt>Model</dt><dd>YOLO26-L</dd>
+          <dt>Confidence</dt><dd>0.15</dd>
+        </dl>
+        <button class="replay" id="replay">▶ Replay detection</button>
+        <p class="hint">Pick another scene below.</p>
+      </div>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+  <p class="note">These are real outputs from the model, pre-computed for this page. The full app runs the model on your own images, and counts palms inside farm boundaries drawn on a map; see the source repository to run it locally.</p>
+
+  <section id="how">
+    <h2 class="sec">How it works</h2>
+    <div class="grid">
+      <div class="card"><div class="num">1</div><h3>Imagery in</h3><p>Upload an aerial JPG/PNG, or capture a farm polygon from Google Earth Pro at a fixed 600 m camera range.</p></div>
+      <div class="card"><div class="num">2</div><h3>Automatic scale</h3><p>The app measures median palm width and tiles the image so palms appear about 24 px wide at the model's 640 px input.</p></div>
+      <div class="card"><div class="num">3</div><h3>YOLO26 detection</h3><p>Tiles run through the trained model on GPU (CPU fallback); overlapping detections from neighbouring tiles are merged.</p></div>
+      <div class="card"><div class="num">4</div><h3>Count and export</h3><p>Only palms whose centre lies inside the farm polygon count. Labelled images and per-farm CSV are saved.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Stack</h2>
+    <p class="lead">Python · Ultralytics YOLO26 · PyTorch · OpenCV · FastAPI · Leaflet farm map · KML / geospatial georeferencing · Google Earth Pro automation</p>
+  </section>
+
+  <footer>
+    <span>Built by Karim Khalil</span>
+    <span><a href="https://kareemkhalill.github.io/portfolio">Portfolio</a> · <a href="https://github.com/kareemkhalill/date-palm-ai">GitHub</a></span>
+  </footer>
+</div>
+
+<script>
+const samples = [
+  { src:'samples/s1.jpg', count:321, scene:'Plantation, dense',  size:'617 × 324' },
+  { src:'samples/s2.jpg', count:88,  scene:'Spaced rows',        size:'389 × 280' },
+  { src:'samples/s3.jpg', count:124, scene:'Young plantation',   size:'738 × 414' },
+  { src:'samples/s4.jpg', count:907, scene:'Dense, road split',  size:'678 × 452' },
+  { src:'samples/s5.jpg', count:148, scene:'Farm TYM-00724, 1.21 ha', size:'702 × 2000' },
+];
+const $ = id => document.getElementById(id);
+const img=$('img'), cover=$('cover'), scan=$('scan'), num=$('num'), viewer=$('viewer'), lens=$('lens');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur = 3, raf = 0;
+
+const thumbs = $('thumbs');
+samples.forEach((s,i) => {
+  const b = document.createElement('button');
+  b.setAttribute('aria-label', 'Scene ' + (i+1) + ': ' + s.scene);
+  b.innerHTML = '<img loading="lazy" alt="" src="'+s.src+'">';
+  b.onclick = () => select(i);
+  thumbs.appendChild(b);
+});
+
+function select(i){
+  cur = i;
+  const s = samples[i];
+  [...thumbs.children].forEach((b,k)=>b.setAttribute('aria-pressed', k===i));
+  img.src = s.src;
+  $('m-scene').textContent = s.scene; $('m-size').textContent = s.size;
+  img.decode().catch(()=>{}).then(play);
+}
+
+function play(){
+  cancelAnimationFrame(raf);
+  const target = samples[cur].count;
+  if (reduce){ num.textContent = target; cover.style.opacity = 0; scan.style.opacity = 0; return; }
+  const dur = 1600, t0 = performance.now();
+  scan.style.opacity = 1; cover.style.opacity = 1;
+  (function step(t){
+    const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+    cover.style.transform = 'scaleX(' + (1-e) + ')';
+    scan.style.left = (e*100) + '%';
+    num.textContent = Math.round(target*e);
+    if (p<1) raf = requestAnimationFrame(step); else { scan.style.opacity = 0; cover.style.opacity = 0; num.textContent = target; }
+  })(t0);
+}
+$('replay').onclick = play;
+
+// zoom lens
+viewer.addEventListener('mousemove', e => {
+  const r = img.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  if (x<0||y<0||x>r.width||y>r.height){ lens.style.display='none'; return; }
+  const z = 3, vr = viewer.getBoundingClientRect();
+  lens.style.display = 'block';
+  lens.style.left = (e.clientX - vr.left - 85) + 'px';
+  lens.style.top  = (e.clientY - vr.top  - 85) + 'px';
+  lens.style.backgroundImage = 'url(' + img.src + ')';
+  lens.style.backgroundSize = (r.width*z) + 'px ' + (r.height*z) + 'px';
+  lens.style.backgroundPosition = (-(x*z-85)) + 'px ' + (-(y*z-85)) + 'px';
+});
+viewer.addEventListener('mouseleave', () => lens.style.display='none');
+
+select(3);
+</script>
+</body>
+</html>
